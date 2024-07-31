@@ -296,6 +296,13 @@ class StaffVisitRegisterView(generics.CreateAPIView):
         # create new visitor instance
         visitor = serializer.save()
 
+        department_name = self.request.data.get('department')
+        # Fetch the department
+        if department_name:
+            department = Department.objects.get(departmentName=department_name.upper())
+            visitor.department = department
+            visitor.save()
+
         # set isApproved to true
         visitor.isApproved = True
         visitor.save()
