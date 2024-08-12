@@ -278,7 +278,8 @@ class CheckInVisitorView(APIView):
 
 
 # List all visitors pending request for each staff(awaiting approval) - localhost:8000/api/visitRequestList/?staff_id={insertstaffid}&status=Pending
-# List all approved visitors for each staff(appointments) - localhost:8000/api/visitRequestList/?staff_id={insertstaffid}&status=Approved
+# List all approved visitors for each staff(appointments) - localhost:8000/api/visitRequestList/?staff_id={insertstaffid}&status=Approved&view_type=appointments
+# List all staff history - localhost:8000/api/visitRequestList/?staff_id={insertstaffid}&status=Approved&view_type=history
 # List all visitors that have been approved and then dismissed(staff visitors history) - localhost:8000/api/visitRequestList/?staff_id={insertstaffid}&status=Dismissed
 # Approve a visitor request - http://localhost:8000/api/visitRequest/{insertvisitorid}/accept
 # Decline a visitor request - http://localhost:8000/api/visitRequest/{insertvisitorid}/decline
@@ -335,8 +336,9 @@ class VisitRequestStatusView(generics.ListAPIView):
 
     def get_queryset(self):
         # Retrieve the status and staff_id from query parameters
-        status = self.request.query_params.get('status', 'pending')
+        status = self.request.query_params.get('status', 'pending') # pending because it's the default
         staff_id = self.request.query_params.get('staff_id')
+        view_type = self.request.query_params.get('view_type', '').lower()
 
         # Filter queryset based on status and staff_id
         queryset = VisitRequest.objects.all()
@@ -349,6 +351,12 @@ class VisitRequestStatusView(generics.ListAPIView):
         else:
             queryset = queryset.none()  # Return empty queryset if status is invalid
 
+        # Handle the view type for appointments and history
+        today = timezone.now().date()
+        if view_type == 'appointments':
+            queryset = queryset.filter(visitor__visitDate__gte=today)
+        elif view_type == 'history':
+            queryset = queryset.filter(visitor__visitDate__lt=today)
         return queryset
 
 
