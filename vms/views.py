@@ -17,7 +17,8 @@ from django.utils import timezone
 from django.contrib.auth import login, logout, authenticate
 from django.utils.timezone import now
 from django.contrib.auth.models import AnonymousUser
-
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 def get_current_time():
         return now().time()
@@ -39,7 +40,7 @@ def register_user(request):
 
     return render(request, 'register.html')
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class LoginView(APIView):
 
     def post(self, request):
@@ -52,12 +53,13 @@ class LoginView(APIView):
             token, created = Token.objects.get_or_create(user=user)
 
             login(request, user)
-
+            # [1500, qwerty]staff
             return Response({
                 'status': 'success',
                 'message': 'Login Successful',
                 'token': token.key,
-                'is_staff': user.is_staff
+                'is_staff': user.is_staff,
+                'user_id': user_id
             }, status=status.HTTP_200_OK)
 
         else:
