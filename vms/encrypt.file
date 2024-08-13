@@ -13,3 +13,17 @@ hashed_password = make_password('plain_text_password')
 user.password = hashed_password
 user.save()
 
+staff = [{
+"user_id": "1500",
+"password" : "qwerty"
+},
+{
+"user_id": "1600",
+"password" : "1600"
+}]
+
+Attendant = {
+"user_id": "1300",
+"password" : "niggat"
+}
+

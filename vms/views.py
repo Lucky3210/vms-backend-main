@@ -53,13 +53,23 @@ class LoginView(APIView):
             token, created = Token.objects.get_or_create(user=user)
 
             login(request, user)
+            staff = None
+            try:
+                staff = Staff.objects.get(user=user)  # Adjust this according to your model relationship
+            except Staff.DoesNotExist:
+                pass
+
+            first_name = staff.firstName if staff else ''
+            last_name = staff.lastName if staff else ''
             # [1500, qwerty]staff
             return Response({
                 'status': 'success',
                 'message': 'Login Successful',
                 'token': token.key,
                 'is_staff': user.is_staff,
-                'user_id': user_id
+                'user_id': user_id,
+                'first_name': first_name,
+                'last_name': last_name
             }, status=status.HTTP_200_OK)
 
         else:
